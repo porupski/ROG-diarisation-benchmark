@@ -61,6 +61,8 @@ for rttm in tqdm(in_rttms):
 exb.remove_duplicated_tlis()
 r = exb.doc.find(".//referenced-file")
 r.attrib["url"] = f"../../data/ROG-Dialog/audio/" + Path(r.attrib["url"]).name
+if not (Path(out) / r.attrib["url"]).exists():
+    r.attrib["url"] = "../" + r.attrib["url"]
 
 đ.info(f"Before saving: tiers: {exb.get_tier_names()}")
 exb.save(out)

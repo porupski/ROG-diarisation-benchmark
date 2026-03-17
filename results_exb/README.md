@@ -15,3 +15,11 @@ To replicate, do the following:
 This will run the pipeline and create twin subdirectories:
 * `top_3`: One exb per recording, with combined output of top 3 performers
 * `single`: Every RTTM gets its own recording.
+
+Top3 output looks like this:
+
+![](Screenshot_top3.png)
+
+While single output looks like this:
+
+![](Screenshot_single.png)
