@@ -5,28 +5,46 @@ exbs = [i.with_suffix("").name for i in exbs]
 
 systems = sorted(list(Path("../results/").glob("*")))
 systems = [i.name for i in systems if i.is_dir()]
-
-top_3 =[
-    'diar_sortformer_4spk-v1',
-    'diar_streaming_sortformer_4spk-v2',
-    'speaker-diarization-precision-2'
-    # 'diar_streaming_sortformer_4spk-v2.1',
-    # 'pyannote_3_1',
-    # 'pyannote_community_1',
-    # 'reverb-diarization-v2',
-    ]
+top_3 = [
+    "diar_sortformer_4spk-v1",
+    "diar_streaming_sortformer_4spk-v2",
+    "speaker-diarization-precision-2",
+]
 
 def get_existing_rttms(wildcards):
     """Return list of existing RTTM files for the given exb"""
     rttm_paths = [f"../results/{system}/{wildcards.exb}.rttm" for system in top_3]
     return [p for p in rttm_paths if Path(p).exists()]
 
+
 rule DoOneWithTop3:
     input:
-        exb = "../data/ROG-Dialog/annotations/exb/{exb}.exb",
-        rttms = get_existing_rttms
-    output: "top_3/{exb}.exb"
-    script: "rttm_to_exb.py"
+        exb="../data/ROG-Dialog/annotations/exb/{exb}.exb",
+        rttms=get_existing_rttms,
+    output:
+        "top_3/{exb}.exb",
+    script:
+        "rttm_to_exb.py"
+
+
+rule DoOneByOne:
+    input:
+        exb="../data/ROG-Dialog/annotations/exb/{exb}.exb",
+        rttms=["../results/{system}/{exb}.rttm"],
+    output:
+        "single/{system}/{exb}.exb",
+    script:
+        "rttm_to_exb.py"
+
+
+
 rule GatherAll:
     default_target: True
-    input: expand(rules.DoOneWithTop3.output[0], exb=exbs)
+    input:
+        top3=expand(rules.DoOneWithTop3.output[0], exb=exbs),
+        singles=[
+            f"single/{system}/{exb}.exb"
+            for system in systems
+            for exb in exbs
+            if Path(f"../results/{system}/{exb}.rttm").exists()
+        ],

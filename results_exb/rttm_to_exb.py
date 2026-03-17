@@ -6,12 +6,10 @@ try:
     out = snakemake.output[0]
 except NameError as e:
     đ.warning(f"Running in standalone mode, reason: {e}")
-    in_exb = "/home/peter/diarisation-benchmark/data/ROG-Dialog/annotations/exb/ROG-Dia-GSO-P0005.exb"
-    in_rttms = [
-        "/home/peter/diarisation-benchmark/results/diar_sortformer_4spk-v1/ROG-Dia-GSO-P0005.rttm"
-    ]
+    in_exb = "data/ROG-Dialog/annotations/exb/ROG-Dia-GSO-P0018.exb"
+    in_rttms = ["results/diar_streaming_sortformer_4spk-v2.1/ROG-Dia-GSO-P0018.rttm"]
     out = "brisi.exb"
-đ.info(f"Got RTTTMS: {in_rttms}")
+đ.info(f"Got RTTMS: {in_rttms}")
 
 from pathlib import Path
 from exbee import EXB
@@ -59,10 +57,10 @@ for rttm in tqdm(in_rttms):
             event.attrib["start"] = start_id
             event.attrib["end"] = end_id
         exb.doc.find(".//tier").getparent().append(tier)
+
 exb.remove_duplicated_tlis()
 r = exb.doc.find(".//referenced-file")
 r.attrib["url"] = f"../../data/ROG-Dialog/audio/" + Path(r.attrib["url"]).name
 
-2 + 2
 đ.info(f"Before saving: tiers: {exb.get_tier_names()}")
 exb.save(out)
