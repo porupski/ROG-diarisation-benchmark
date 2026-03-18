@@ -5,11 +5,13 @@ exbs = [i.with_suffix("").name for i in exbs]
 
 systems = sorted(list(Path("../results/").glob("*")))
 systems = [i.name for i in systems if i.is_dir()]
+# print(systems)
 top_3 = [
-    "diar_sortformer_4spk-v1",
-    "diar_streaming_sortformer_4spk-v2",
     "speaker-diarization-precision-2",
+    "diar_streaming_sortformer_4spk-v2",
+    "pyannote_community_1",
 ]
+
 
 def get_existing_rttms(wildcards):
     """Return list of existing RTTM files for the given exb"""
@@ -35,7 +37,6 @@ rule DoOneByOne:
         "single/{system}/{exb}.exb",
     script:
         "rttm_to_exb.py"
-
 
 
 rule GatherAll:
