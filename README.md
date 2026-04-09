@@ -106,7 +106,7 @@ sudo docker run --rm \
   --output /data/reports/ROG-Dia_Final_Report
 ```
 
-# Ivan: Auto-trim silences from Gold intervals with Praat
+# Ivan: Auto-trim silences from Gold intervals with Praat (Apr2026)
 
 Human-annotated segment boundaries in the gold RTTM often include leading/trailing silence (annotators clicking a bit too early or too late). The `trim_gold_silences_rttm.py` module uses Praat's pitch and intensity analysis (via Parselmouth) to detect actual speech onset/offset and tighten those boundaries automatically. It can also split segments at long internal silences.
 
@@ -117,6 +117,23 @@ Human-annotated segment boundaries in the gold RTTM often include leading/traili
 - Optionally splits segments at internal silences (e.g. ≥500ms gaps within a single annotation)
 - Drops segments that become too short after trimming (configurable threshold)
 - Writes results incrementally per file (crash-safe — no data lost if it fails mid-run)
+
+### Impact of Gold Standard Trimming on Evaluation Metrics
+
+Trimming the gold standard consistently lowers DER across all models, driven almost entirely by reduced Miss rates — the original annotations include silence at segment edges that unfairly penalizes models for not predicting speech where there is none. FA increases slightly (smaller speech denominator), while Confusion stays stable since trimming doesn't affect speaker identity.
+
+Example using the best-performing model (pyannote speaker-diarization-precision-2, collar=0.25):
+
+| Metric   | Original Gold | Trimmed Gold |
+|----------|---------------|--------------|
+| DER      | 20.25%        | **9.52%**    |
+| Miss     | 17.40%        | **5.78%**    |
+| FA       | **1.26%**     | 2.37%        |
+| Conf     | **1.22%**     | 1.36%        |
+| Purity   | **86.91%**    | 86.89%       |
+| Coverage | **89.32%**    | 89.09%       |
+
+The trimmed evaluation better reflects actual diarisation performance by removing measurement artifacts from imprecise annotation boundaries.
 
 ## Two ways to use it
 
